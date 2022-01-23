@@ -9,14 +9,13 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.util.Log
 import android.view.Menu
 import android.widget.SimpleCursorAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.test.kerja.addcontactinfotoaddtransactionform.databinding.ActivityMainBinding
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -78,10 +77,20 @@ class MainActivity : AppCompatActivity() {
         adapterContact.notifyDataSetChanged()
 //        binding.listviewOne.onItemClickListener
 
-
-
+        dataContactModelClassList.clear()
+        resultlistContact?.moveToPosition(-1)
         while (resultlistContact!=null&&resultlistContact.moveToNext()){
-            dataContact.add(resultlistContact)
+//            dataContact.add(resultlistContact)
+            val contact = Contact(
+                name = resultlistContact.getString(0),
+                number = resultlistContact.getString(1),
+            )
+
+
+            dataContactModelClassList.add(contact)
+            Log.d("i-tag","panjang array biasa adalah : ${dataContactModelClassList.size}")
+            println(dataContactModelClassList)
+            println("------------------------------------------------------------------------------------------1")
 //            for (i in dataContact){
 //
 //                val contact = Contact(
@@ -91,17 +100,23 @@ class MainActivity : AppCompatActivity() {
 //                )
 //            }
         }
+        Log.d("i-tag","tag size biasa: ${dataContactModelClassList.size}")
         binding.listviewOne.setOnItemClickListener { adapterView, view, i, l ->
-            val cursorChoose = dataContact.get(i)
+            val cursorChoose = dataContactModelClassList.get(i)
 //            Toast.makeText(applicationContext,resultCursorToString, Toast.LENGTH_LONG).show()
-            Toast.makeText(applicationContext,cursorChoose.getString(0)+"\n"+cursorChoose.getString(1), Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext,cursorChoose.name+"\n"+cursorChoose.number, Toast.LENGTH_LONG).show()
             val detailContact = Intent(this,DetailContactActivity::class.java).apply {
-                putExtra(DetailContactActivity.IN_USERNAME,cursorChoose.getString(0))
-                putExtra(DetailContactActivity.IN_NUMBER,cursorChoose .getString(1))
+                putExtra(DetailContactActivity.IN_USERNAME,cursorChoose.name)
+                putExtra(DetailContactActivity.IN_NUMBER,cursorChoose .number)
             }
             startActivity(detailContact)
+            Toast.makeText(applicationContext,"nilai i adalah $i dan nilai l adalah $l", Toast.LENGTH_LONG).show()
+            Log.d("i-tag","nilai i adalah : $i")
+            Log.d("i-tag","nilai l adalah : $l")
+            Log.d("i-tag","panjang array biasa adalah : ${dataContactModelClassList.size}")
+            println(dataContactModelClassList)
+            println("------------------------------------------------------------------------------------------2")
         }
-
 
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -119,14 +134,30 @@ class MainActivity : AppCompatActivity() {
 
             override fun onQueryTextChange(p0: String?): Boolean {
                 if (p0 != null) {
+
                     var resultlistContact = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,cols,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" LIKE ?",Array(1){"%$p0%"},ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                    println("------------------------------------------------------------------------------------------------3 cursor query")
+                    println(resultlistContact?.count)
+                    println(resultlistContact?.count)
                     adapterContact.changeCursor(resultlistContact)
                     adapterContact.notifyDataSetChanged()
-//                    while (resultlistContact!=null&&resultlistContact.moveToNext()){
-////                        val contact = Contact(resultlistContact.getColumnName())
-////                    dataContact.add(resultlistContact)
-//                    }
-//                    githubViewModel.doSearch(query)
+                    dataContactModelClassList.clear()
+                    resultlistContact?.moveToPosition(-1)
+                    while (resultlistContact!=null&&resultlistContact.moveToNext()){
+                        val contact = Contact(
+                            name = resultlistContact.getString(0),
+                            number = resultlistContact.getString(1)
+                        )
+
+                        dataContactModelClassList.add(contact)
+//                        val contact = Contact(resultlistContact.getColumnName())
+//                    dataContact.add(resultlistContact)
+
+                        Log.d("i-tag","panjang array while query adalah: ${dataContactModelClassList.size}")
+                        println(dataContactModelClassList)
+                        println("------------------------------------------------------------------------------------------3")
+                    }
+
                 }
                 return true
             }
